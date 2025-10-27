@@ -31,7 +31,7 @@ class AnomalyForecastModel():
     Prediction mode:
         - Expects `dataset` to contain either:
             • A DatetimeIndex, OR
-            • A time column named 'time' or '日期' (will be parsed to datetime and set as index).
+            • A time column named 'time' (will be parsed to datetime and set as index).
         - Only the columns listed in `feature_names` are used for scoring.
 
     Persisted artifacts
@@ -172,13 +172,12 @@ class AnomalyForecastModel():
         std_scaler = joblib.load('./checkpoints/scaler.pkl')
 
         if not isinstance(self.data.index, pd.DatetimeIndex):
-            for col in ('time', '日期'):
-                if col in self.data.columns:
-                    self.data[col] = pd.to_datetime(self.data[col], errors='coerce')
-                    self.data = self.data.set_index(col)
-                    break
+            col = 'time'
+            if col in self.data.columns:
+                self.data[col] = pd.to_datetime(self.data[col], errors='coerce')
+                self.data = self.data.set_index(col)
             if not isinstance(self.data.index, pd.DatetimeIndex):
-                raise TypeError("Prediction data must have a DatetimeIndex or a time/日期 column.")
+                raise TypeError("Prediction data must have a DatetimeIndex or a time column.")
 
 
         # resample incoming data then scale + predict
