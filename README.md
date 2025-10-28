@@ -66,6 +66,7 @@ pip install -r requirements.txt
 ### Train or predict:
 ```bash
 python3 run.py --model AnomalyForecastModel --mode train --debug
+python3 run.py --model AnomalyForecastModel --mode predict --debug
 python3 run.py --model ThresholdDetectionModel --mode predict --target power --left_threshold 300 --right_threshold 500
 ```
 
