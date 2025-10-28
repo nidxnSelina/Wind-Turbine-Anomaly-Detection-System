@@ -2,7 +2,7 @@
 
 ## Overview
 `ThresholdDetectionModel` is a rule-based anomaly detection model.  
-It is designed to report the proportion of anomalies in time-series turbine data by comparing against user-defined thresholds.  
+It is designed to report the proportion of anomalies (outliers in a single feature) in time-series turbine data by comparing against user-defined thresholds.  
 This model requires no training and is useful for quick checks and alerting.
 
 ## Key Features
