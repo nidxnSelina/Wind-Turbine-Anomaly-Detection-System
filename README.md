@@ -1,76 +1,107 @@
-# Wind Turbine Anomaly & Threshold Detection
+# 🌪️ Wind Turbine Time-Series Anomaly Detection System
 
-A small, production-leaning toolkit for anomaly detection on wind-turbine (or similar time-series) data.  
-It currently provides:
+This project provides an **end-to-end anomaly detection framework** for wind turbine time-series data.  
+It supports both **rule-based** and **machine-learning–based** approaches to detect abnormal behavior in turbine performance metrics such as wind speed, generator speed, power, yaw angle, and pitch temperatures.
 
-- **AnomalyForecastModel** — a supervised, classical ML pipeline (RandomForest) with scaling and class-imbalance handling.
-- **ThresholdDetectionModel** — a lightweight, training-free detector using simple numeric thresholds.
+---
 
-## Features
+## ⚙️ System Components
 
-- End-to-end CLI: train and predict with `run.py`
-- Balanced training via `RandomUnderSampler`
-- Train/test split with held-out evaluation
-- Consistent scaling using `StandardScaler` fit on training data only
-- Predict on external datasets without retraining
-- Minimal interface via `argparse.Namespace`
+The system includes two main models:
 
-## Project Structure (simplified)
+### 1. `ThresholdDetectionModel`
+A **rule-based model** for fast, interpretable anomaly detection using user-defined thresholds.
 
-```
-.
-├─ run.py
-├─ src/
-│  ├─ cmd_cli.py
-│  ├─ utils.py
-│  └─ model/
-│     ├─ AnomalyForecastModel/
-│     │  ├─ anomaly_data/
-│     │  └─ model.py
-│     └─ ThresholdDetectionModel/
-│        └─ model.py
-└─ test_data/
+**Highlights**
+- No training required  
+- Lightweight and fast  
+- Works on a single numeric feature (e.g., `wind_speed`, `power`)  
+- Reports the proportion of values falling below, within, or above thresholds  
+
+**Usage Example**
+```bash
+python3 run.py --model ThresholdDetectionModel --mode predict   --target power --left_threshold 300.0 --right_threshold 500.0 --debug
 ```
 
-## Installation
+**Output Example**
+| Label | Meaning | Condition |
+|--------|----------|-----------|
+| `0` | Normal | within `[left, right]` |
+| `1` | Below Threshold | < `left` |
+| `2` | Above Threshold | > `right` |
+
+---
+
+### 2. `AnomalyForecastModel`
+A **supervised Random Forest–based model** that learns from historical labeled data to detect anomalies automatically.
+
+**Highlights**
+- Uses `RandomForestClassifier` for binary classification (`is_anomaly`)
+- Automatically handles class imbalance with `RandomUnderSampler`
+- Scales features using `StandardScaler`
+- Splits training/testing automatically and saves model artifacts
+- Supports both `train` and `predict` modes
+
+**Training Workflow**
+1. Load labeled turbine data and time windows.
+2. Balance and scale data.
+3. Train Random Forest model.
+4. Save scaler and classifier to `checkpoints/`.
+
+**Prediction Workflow**
+1. Load unseen `.xls` data from `test_data/`.
+2. Apply the trained model.
+3. Output a time-indexed DataFrame with anomaly predictions.
+
+**Usage Example**
+```bash
+python3 run.py --model AnomalyForecastModel --mode train --debug
+python3 run.py --model AnomalyForecastModel --mode predict --debug
+```
+
+**Artifacts**
+- `checkpoints/scaler.pkl` — Fitted StandardScaler  
+- `checkpoints/classifier.pkl` — Trained RandomForest model  
+
+---
+
+## 🧩 Data Requirements
+
+Both models operate on structured turbine datasets containing:
+- `time` (datetime index or column)
+- Numeric features such as  
+  `wind_speed`, `power`, `pitch1_moto_tmp`, `pitch2_moto_tmp`, `pitch3_moto_tmp`, `environment_tmp`, `int_tmp`
+
+Training mode additionally expects:
+- `anomaly_data/observations.csv`
+- `positive_windows.csv`, `negative_windows.csv` (for labeling)
+
+---
+
+## 🚀 Installation & Execution
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Quickstart
-
-### Train
-
+To train or predict:
 ```bash
 python3 run.py --model AnomalyForecastModel --mode train --debug
+python3 run.py --model ThresholdDetectionModel --mode predict --target power --left_threshold 300 --right_threshold 500
 ```
 
-### Predict
+---
 
-```bash
-python3 run.py --model AnomalyForecastModel --mode predict --freq 15min --debug
-```
+## 📜 Outputs
 
-### Threshold Detection
+- **AnomalyForecastModel:**  
+  JSON or DataFrame of time-indexed anomaly flags (`True`/`False`).
 
-```bash
-python3 run.py --model ThresholdDetectionModel --mode predict --target wind_speed --left_threshold 3.0 --right_threshold 25.0 --debug
-```
+- **ThresholdDetectionModel:**  
+  Summary table of proportions for below, normal, and above-threshold data.
 
-## .gitignore
+---
 
-```gitignore
-__pycache__/
-*.pyc
-checkpoints/
-src/model/AnomalyForecastModel/anomaly_data/
-*.csv
-*.pkl
-```
-
-## License
-
-MIT
+## 🧑‍💻 Author
+Developed by **Selina Wang**  
+Wind Turbine Anomaly Detection — Machine Learning & Time-Series Analytics

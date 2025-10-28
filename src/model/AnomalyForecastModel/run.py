@@ -19,7 +19,7 @@ class AnomalyForecastModel():
       • 'train'   — builds a classifier from internally stored labeled time windows.
       • 'predict' — loads the saved scaler + classifier and scores incoming data.
 
-    Data requirements
+    Data requirements: 
     -----------------
     Training mode:
         - Expects a folder named 'anomaly_data' next to this file containing:
@@ -33,11 +33,6 @@ class AnomalyForecastModel():
             • A DatetimeIndex, OR
             • A time column named 'time' (will be parsed to datetime and set as index).
         - Only the columns listed in `feature_names` are used for scoring.
-
-    Persisted artifacts
-    -------------------
-    - './checkpoints/scaler.pkl'      : StandardScaler fit on training data.
-    - './checkpoints/classifier.pkl'  : Trained RandomForestClassifier.
     """
 
 
@@ -60,7 +55,7 @@ class AnomalyForecastModel():
         self.flag = flag
         self.freq = freq
 
-        # Load training data and labeled windows
+        # Load training data and windows for labeling
         if self.flag == 'train':
             current_dir = os.path.split(os.path.realpath(__file__))[0] + "/anomaly_data"
             data_path = os.path.join(current_dir, "observations.csv")
@@ -87,6 +82,7 @@ class AnomalyForecastModel():
 
     @logger.catch()
     def run(self, args: Namespace):
+        """Run training or prediction based on mode."""
         target = None
         if self.flag == 'train':
             self.fit(args)
@@ -95,16 +91,25 @@ class AnomalyForecastModel():
         return target
 
     def train(self, args: Namespace):
+        """Not used — use fit() instead."""
         raise NotImplementedError("Machine Learning Model please use fit method.")
 
     def fit(self, args: Namespace):
-        # time columns in windows are 'startTime' and 'endTime'
-        # data has 'time'
+        """
+        Train the Random Forest classifier on labeled time-series data.
+
+        Args:
+            args (Namespace): Command-line arguments passed into the model
+
+        Returns:
+            None. Trained model and scaler are saved to disk.
+        """
+        # Convert time columns
         self.data.time = pd.to_datetime(self.data.time)
         self.normal_data = self.normal_data.apply(pd.to_datetime)
         self.fail_data = self.fail_data.apply(pd.to_datetime)
 
-        # create target variable is_anomaly
+        # Create anomaly labels
         self.data['is_anomaly'] = None
         for _, row in tqdm(self.normal_data.iterrows()):
             normal = (row['startTime'] < self.data['time']) & (row['endTime'] > self.data["time"])
@@ -113,64 +118,71 @@ class AnomalyForecastModel():
             fail = (row['startTime'] <= self.data['time']) & (row['endTime'] >= self.data["time"])
             self.data.loc[fail, 'is_anomaly'] = True
 
+        # Clean and select columns
         self.data = self.data.dropna()
         self.data = self.data.drop('time', axis=1)
         self.data = self.data.astype({'is_anomaly': 'bool'})
         self.data = self.data.loc[:, self.feature_names + ['is_anomaly']]
 
-        # 1) Keep DataFrame/Series (preserves names + index)
+        # Split features/labels
         X = self.data[self.feature_names]
         y = self.data["is_anomaly"]
 
-        # 2) Train/test split (stratify to keep class ratio)
+        # Train/test split
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=42, stratify=y
         )
 
-        # 3) Under-sample training set (returns arrays)
+        # Under-sample training set
         under = RandomUnderSampler(random_state=42)
         X_train_under, y_train_under = under.fit_resample(X_train, y_train)
 
-        # 4) Convert back to pandas objects (RangeIndex is fine)
+        # Convert back to pandas objects
         X_train_under = pd.DataFrame(X_train_under, columns=self.feature_names)
         y_train_under = pd.Series(y_train_under, name="is_anomaly")
 
-        # 5) Scale with one scaler fit on training data ONLY
+        # Scale features
         from sklearn.preprocessing import StandardScaler
         std_scaler = StandardScaler()
-
         X_train_under_scaled = pd.DataFrame(
             std_scaler.fit_transform(X_train_under),
             columns=self.feature_names,
             index=X_train_under.index,
         )
-
-        # Ensure X_test is a DataFrame with same columns/order (it already is if step 1 kept DF)
         X_test = X_test[self.feature_names]
-
         X_test_scaled = pd.DataFrame(
             std_scaler.transform(X_test),
             columns=self.feature_names,
             index=X_test.index,
         )
 
-
+        # Train model and print confusion matrix
         self.classifier.fit(X_train_under_scaled, y_train_under)
         prediction = self.classifier.predict(X_test_scaled)
         cm = confusion_matrix(y_test, prediction)
         logger.info(f'Confusion matrix:\n{cm}')
 
-        # save model + scaler
+        # Save model + scaler
         os.makedirs('./checkpoints', exist_ok=True)
         joblib.dump(std_scaler, './checkpoints/scaler.pkl')
         joblib.dump(self.classifier, './checkpoints/classifier.pkl')
         logger.info('Anomaly Forecast Model dump successfully')
 
     def forecast(self, args: Namespace) -> pd.DataFrame:
-        # load artifacts
+        """
+        Predict anomalies in a time-series dataset using a trained model.
+        Args:
+            args (Namespace): Command-line arguments passed into the model
+
+        Returns:
+            pd.DataFrame: DataFrame with DatetimeIndex and a single column:
+                'is_anomaly' (bool) — True if the model predicts an anomaly.
+        """
+        # Load artifacts
         self.classifier = joblib.load('./checkpoints/classifier.pkl')
         std_scaler = joblib.load('./checkpoints/scaler.pkl')
-
+        
+        # Ensure datetime index
         if not isinstance(self.data.index, pd.DatetimeIndex):
             col = 'time'
             if col in self.data.columns:
@@ -179,13 +191,14 @@ class AnomalyForecastModel():
             if not isinstance(self.data.index, pd.DatetimeIndex):
                 raise TypeError("Prediction data must have a DatetimeIndex or a time column.")
 
-
-        # resample incoming data then scale + predict
+        # Resample, scale, and predict
         X = self.data.resample(self.freq).bfill().dropna()
         X_scaled = pd.DataFrame(
             std_scaler.transform(X),
             index=X.index,
-            columns=self.feature_names,        # ✅ column names preserved again
+            columns=self.feature_names,
         )
         y = self.classifier.predict(X_scaled)
+
         return pd.DataFrame(y, index=X.index, columns=['is_anomaly'])
+    

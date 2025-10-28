@@ -57,21 +57,11 @@ class ThresholdDetectionModel():
         return dataset
 
     def train(self, args: Namespace):
-        """
-        Placeholder method for training.
-
-        Raises:
-            NotImplementedError: This model is rule-based and does not support training.
-        """
+        """Placeholder method for training."""
         raise NotImplementedError("This model doesn't have train method")
 
     def fit(self, args):
-        """
-        Placeholder method for fitting.
-
-        Raises:
-            NotImplementedError: This model is rule-based and does not support fitting.
-        """
+        """Placeholder method for fitting."""
         raise NotImplementedError("This model doesn't have fit method")
 
     def forecast(self, args: Namespace) -> pd.DataFrame:

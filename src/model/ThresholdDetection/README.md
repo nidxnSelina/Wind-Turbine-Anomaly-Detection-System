@@ -1,97 +1,65 @@
 # ThresholdDetectionModel
 
 ## Overview
-`ThresholdDetectionModel` is a lightweight, rule-based anomaly detection model.  
-It flags anomalies in time-series data by comparing sensor readings against user-defined thresholds.  
-This model requires no training and is useful for quick checks, diagnostics, and interpretable alerting.
+`ThresholdDetectionModel` is a rule-based anomaly detection model.  
+It is designed to report the proportion of anomalies in time-series turbine data by comparing against user-defined thresholds.  
+This model requires no training and is useful for quick checks and alerting.
 
 ## Key Features
 - **No training required** — purely rule-based detection
 - **Fast and interpretable**
 - **Simple CLI interface**
-- **Works directly with raw or preprocessed numeric data**
-- **Easy integration** into pipelines or APIs
 
 ## Workflow
-1. **Load data** (e.g., turbine telemetry).
-2. **Specify a target column** (e.g., wind_speed).
+1. **Load data**.
+2. **Specify a target column**.
 3. **Provide lower and upper thresholds**.
-4. The model flags any rows where the target value is outside the threshold range.
+4. The model flags any rows where the target value is outside the threshold range. 
 
 ## Data Requirements
-- A **DataFrame** containing a numeric column that represents the monitored metric (e.g., wind speed, temperature, power).
-
-Example columns:
+- A **DataFrame** containing a numeric target column that represents the monitored metric. 
+- Available target columns are:
 ```
-time, wind_speed, generator_speed, power, temperature
+"wind_speed", "power", "pitch1_moto_tmp", "pitch2_moto_tmp", "pitch3_moto_tmp", "environment_tmp", "int_tmp"
 ```
+- This model only supports 'predict' mode as it requires no machine learning model for training.
 
-## CLI Usage
+## Usage
+
+### Install Dependencies
+```
+pip install -r requirements.txt
+```
 
 ### Run prediction
+Example:
 ```bash
-python3 run.py   --model ThresholdDetectionModel   --mode predict   --target wind_speed   --left_threshold 3.0   --right_threshold 25.0   --debug
+python3 run.py   --model ThresholdDetectionModel   --mode predict   --target power   --left_threshold 300.0   --right_threshold 500.0   --debug
 ```
 
 ### CLI Arguments
 | Argument | Description |
 |-----------|-------------|
-| `--target` | Column name to evaluate (e.g., wind_speed) |
-| `--left_threshold` | Minimum acceptable value (optional) |
-| `--right_threshold` | Maximum acceptable value (optional) |
+| `--model` | Model name `ThresholdDetectionModel` |
 | `--mode` | Must be `predict` (training not supported) |
-| `--debug` | Prints detailed runtime information |
-
-## Code Example
-```python
-import pandas as pd
-from argparse import Namespace
-from src.model.ThresholdDetectionModel.model import ThresholdDetectionModel
-
-df = pd.read_csv("test_data/telemetry.csv")
-args = Namespace(mode="predict")
-
-model = ThresholdDetectionModel(data=df, target=["wind_speed"])
-model.left_threshold = 3.0
-model.right_threshold = 25.0
-
-flags = model.run(args)
-print(flags.head())
-```
+| `--target` | Column name to evaluate (e.g., power) |
+| `--left_threshold` | Minimum acceptable value |
+| `--right_threshold` | Maximum acceptable value |
+| `--debug` | Debug |
 
 ## Output
-- **Returns:** Boolean flags for each row indicating whether it is an anomaly.
+- **Returns:** When ran in 'predict' mode, the model returns the ratio of records that fall into each classification category, based on the provided threshold values.
+| Label | Meaning         | Condition                                        |
+| :---- | :-------------- | :----------------------------------------------- |
+| `0`   | Normal          | Value within `[left_threshold, right_threshold]` |
+| `1`   | Below Threshold | Value < `left_threshold`                         |
+| `2`   | Above Threshold | Value > `right_threshold`                        |
+
 - **Example:**  
-  `True` → anomaly detected (value out of bounds)  
-  `False` → normal behavior
-
-Example snippet:
 ```
-0    False
-1    False
-2     True
-3    False
-4     True
-Name: is_anomaly, dtype: bool
+          wind_speed
+label                
+0            0.82
+1            0.10
+2            0.08
 ```
-
-## Notes
-- You can set either threshold independently to create one-sided rules (e.g., only `--left_threshold`).
-- The model can be integrated into a FastAPI or Flask backend for real-time monitoring.
-- In `debug` mode, it prints the total anomaly rate and sample flagged values.
-
-## Folder Structure
-```
-src/model/ThresholdDetectionModel/
-├─ model.py
-├─ __init__.py
-└─ README.md                # This file
-```
-
-## Example Use Cases
-- Detect turbine overspeed or low wind conditions.
-- Monitor generator or blade temperatures.
-- Alert when power output drops below operational limits.
-
-## License
-MIT
