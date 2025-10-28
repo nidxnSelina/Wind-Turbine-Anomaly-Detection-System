@@ -10,7 +10,7 @@ It supports both rule-based and machine-learning–based approaches to detect ab
 The system includes two main models:
 
 ### 1. `ThresholdDetectionModel`
-A **rule-based model** for fast, interpretable anomaly detection that identifies outliers in a single feature using user-defined thresholds.
+A **rule-based model** for fast, interpretable anomaly detection by identifying outliers in a single feature using user-defined thresholds.
 
 **Highlights**
 - No training required  
@@ -25,7 +25,7 @@ python3 run.py --model ThresholdDetectionModel --mode predict   --target power -
 ---
 
 ### 2. `AnomalyForecastModel`
-A **supervised Random Forest–based model** that learns from historical data to predict anomalies based on time windows.
+A **supervised Random Forest–based model** that learns from historical data to predict anomalies based on anomalous time windows.
 
 **Highlights**
 - Uses `RandomForestClassifier` for binary classification (`is_anomaly` label derived)
