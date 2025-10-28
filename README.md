@@ -15,7 +15,6 @@ A **rule-based model** for fast, interpretable anomaly detection using user-defi
 **Highlights**
 - No training required  
 - Lightweight and fast  
-- Works on a single numeric feature (e.g., `power`)  
 - Reports the proportion of values falling below, within, or above thresholds  
 
 **Usage Example**
@@ -31,7 +30,6 @@ A **supervised Random Forest–based model** that learns from historical data to
 **Highlights**
 - Uses `RandomForestClassifier` for binary classification (`is_anomaly` label derived)
 - Automatically handles class imbalance with `RandomUnderSampler`
-- Scales features using `StandardScaler`
 - Splits training/testing automatically and saves model artifacts
 - Supports both `train` and `predict` modes
 

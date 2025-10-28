@@ -31,7 +31,7 @@ This model requires no training and is useful for quick checks and alerting.
 pip install -r requirements.txt
 ```
 
-### Run prediction
+### Run Detection
 Example:
 ```bash
 python3 run.py   --model ThresholdDetectionModel   --mode predict   --target power   --left_threshold 300.0   --right_threshold 500.0   --debug

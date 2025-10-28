@@ -3,3 +3,4 @@ src/model/AnomalyForecastModel/anomaly_data/
 *.pkl
 *.csv
 test_data/
+venv/

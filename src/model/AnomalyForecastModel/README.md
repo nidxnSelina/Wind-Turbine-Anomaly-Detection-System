@@ -1,8 +1,8 @@
 # AnomalyForecastModel
 
 ## Overview
-`AnomalyForecastModel` is a supervised anomaly detection model built around a **RandomForestClassifier**.  
-It automates the process of detecting abnormal behavior in time-series turbine data.
+`AnomalyForecastModel` is a supervised anomaly prediction model built around a **RandomForestClassifier**.  
+It automates the process of predicting abnormal behavior in time-series turbine data.
 The model includes end-to-end handling of data preparation, class balancing, feature scaling, and prediction.
 During training, the model automatically labels samples as normal or anomalous by referencing window definition files 
 (positive_windows.csv and negative_windows.csv) against the main observation dataset.
