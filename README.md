@@ -1,7 +1,7 @@
 # Wind Turbine Time-Series Anomaly Detection System
 
-This project provides an end-to-end anomaly detection framework for wind turbine time-series data.  
-It supports both rule-based and machine-learning–based approaches to detect abnormal behavior in turbine performance metrics such as generator speed, power, and pitch temperatures.
+This project provides an anomaly detection framework for wind turbine time-series data sourced from Kaggle. 
+It supports both rule-based and machine-learning–based approaches to detect abnormal behavior in turbine performance metrics such as power and pitch temperatures.
 
 ---
 
