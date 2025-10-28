@@ -50,7 +50,7 @@ python3 run.py   --model ThresholdDetectionModel   --mode predict   --target pow
 ## Output
 - **Returns:** When ran in 'predict' mode, the model returns the ratio of records that fall into each classification category, based on the provided threshold values.
 | Label | Meaning         | Condition                                        |
-| :---- | :-------------- | :----------------------------------------------- |
+| ----- | --------------- | ----------------------------------------------- |
 | `0`   | Normal          | Value within `[left_threshold, right_threshold]` |
 | `1`   | Below Threshold | Value < `left_threshold`                         |
 | `2`   | Above Threshold | Value > `right_threshold`                        |

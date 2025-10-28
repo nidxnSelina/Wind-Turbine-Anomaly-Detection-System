@@ -1,11 +1,11 @@
-# 🌪️ Wind Turbine Time-Series Anomaly Detection System
+# Wind Turbine Time-Series Anomaly Detection System
 
-This project provides an **end-to-end anomaly detection framework** for wind turbine time-series data.  
-It supports both **rule-based** and **machine-learning–based** approaches to detect abnormal behavior in turbine performance metrics such as wind speed, generator speed, power, yaw angle, and pitch temperatures.
+This project provides an end-to-end anomaly detection framework for wind turbine time-series data.  
+It supports both rule-based and machine-learning–based approaches to detect abnormal behavior in turbine performance metrics such as generator speed, power, and pitch temperatures.
 
 ---
 
-## ⚙️ System Components
+## System Components
 
 The system includes two main models:
 
@@ -15,7 +15,7 @@ A **rule-based model** for fast, interpretable anomaly detection using user-defi
 **Highlights**
 - No training required  
 - Lightweight and fast  
-- Works on a single numeric feature (e.g., `wind_speed`, `power`)  
+- Works on a single numeric feature (e.g., `power`)  
 - Reports the proportion of values falling below, within, or above thresholds  
 
 **Usage Example**
@@ -23,7 +23,7 @@ A **rule-based model** for fast, interpretable anomaly detection using user-defi
 python3 run.py --model ThresholdDetectionModel --mode predict   --target power --left_threshold 300.0 --right_threshold 500.0 --debug
 ```
 
-**Output Example**
+**Output Note**
 | Label | Meaning | Condition |
 |--------|----------|-----------|
 | `0` | Normal | within `[left, right]` |
@@ -33,10 +33,10 @@ python3 run.py --model ThresholdDetectionModel --mode predict   --target power -
 ---
 
 ### 2. `AnomalyForecastModel`
-A **supervised Random Forest–based model** that learns from historical labeled data to detect anomalies automatically.
+A **supervised Random Forest–based model** that learns from historical data to detect anomalies automatically.
 
 **Highlights**
-- Uses `RandomForestClassifier` for binary classification (`is_anomaly`)
+- Uses `RandomForestClassifier` for binary classification (`is_anomaly` label derived)
 - Automatically handles class imbalance with `RandomUnderSampler`
 - Scales features using `StandardScaler`
 - Splits training/testing automatically and saves model artifacts
@@ -49,7 +49,7 @@ A **supervised Random Forest–based model** that learns from historical labeled
 4. Save scaler and classifier to `checkpoints/`.
 
 **Prediction Workflow**
-1. Load unseen `.xls` data from `test_data/`.
+1. Load external data or in debug, load unseen `.xls` data from `test_data/`
 2. Apply the trained model.
 3. Output a time-indexed DataFrame with anomaly predictions.
 
@@ -65,7 +65,7 @@ python3 run.py --model AnomalyForecastModel --mode predict --debug
 
 ---
 
-## 🧩 Data Requirements
+## Data Requirements
 
 Both models operate on structured turbine datasets containing:
 - `time` (datetime index or column)
@@ -78,13 +78,14 @@ Training mode additionally expects:
 
 ---
 
-## 🚀 Installation & Execution
+## Installation & Execution
 
+### Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-To train or predict:
+### Train or predict:
 ```bash
 python3 run.py --model AnomalyForecastModel --mode train --debug
 python3 run.py --model ThresholdDetectionModel --mode predict --target power --left_threshold 300 --right_threshold 500
@@ -92,8 +93,8 @@ python3 run.py --model ThresholdDetectionModel --mode predict --target power --l
 
 ---
 
-## 📜 Outputs
-
+## Outputs
+Outputs are saved in `checkpoints/` folder.
 - **AnomalyForecastModel:**  
   JSON or DataFrame of time-indexed anomaly flags (`True`/`False`).
 
@@ -102,6 +103,5 @@ python3 run.py --model ThresholdDetectionModel --mode predict --target power --l
 
 ---
 
-## 🧑‍💻 Author
+## 🧑Author
 Developed by **Selina Wang**  
-Wind Turbine Anomaly Detection — Machine Learning & Time-Series Analytics

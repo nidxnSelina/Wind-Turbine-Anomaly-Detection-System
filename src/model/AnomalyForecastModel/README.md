@@ -26,8 +26,8 @@ During prediction, the trained model classifies unseen time-series data as eithe
 
 ## Data Requirements
 - This model supports two modes:
-    • 'train'   — builds a classifier from internally stored labeled time windows.
-    • 'predict' — loads the saved scaler + classifier and scores incoming data.
+    - 'train'   — builds a classifier from internally stored labeled time windows.
+    - 'predict' — loads the saved scaler + classifier and scores incoming data.
 
 ### Training Mode
 - Requires a dataset (unlabeled) containing the following feature columns the model would be trained on: 
@@ -45,10 +45,10 @@ The derived label `is_anomaly` is the target and the labeled dataset is then use
 
 ### Prediction Mode
 - Expects `dataset` to contain:
-    • The feature columns that the model is trained on
+    - The feature columns that the model is trained on
 and either:
-    • A DatetimeIndex column, OR
-    • A time column named 'time' (will be parsed to datetime and set as index).
+    - A DatetimeIndex column, OR
+    - A time column named 'time' (will be parsed to datetime and set as index).
 
 - In debug, it uses an external dataset located under `test_data/` in `.xls` format.
 
