@@ -34,21 +34,20 @@ During prediction, the trained model classifies unseen time-series data as eithe
 `wind_speed`, `power`, `pitch1_moto_tmp`, `pitch2_moto_tmp`, `pitch3_moto_tmp`, `environment_tmp`, `int_tmp`
 
 - Expects a folder named 'anomaly_data' next to this file containing:
-    • observations.csv        (raw time series with a 'time' column)
-    • positive_windows.csv    (columns: 'startTime', 'endTime')
-    • negative_windows.csv    (columns: 'startTime', 'endTime')
+    - observations.csv        (raw time series with a 'time' column)
+    - positive_windows.csv    (columns: 'startTime', 'endTime')
+    - negative_windows.csv    (columns: 'startTime', 'endTime')
 
 - The model checks whether the timestamp falls into any of the defined windows:
-If time ∈ negative_windows.csv → is_anomaly = 1
-If time ∈ positive_windows.csv → is_anomaly = 0
+    - If time ∈ negative_windows.csv → is_anomaly = 1
+    - If time ∈ positive_windows.csv → is_anomaly = 0
+
 The derived label `is_anomaly` is the target and the labeled dataset is then used to train the Random Forest classifier.
 
 ### Prediction Mode
 - Expects `dataset` to contain:
     - The feature columns that the model is trained on
-and either:
-    - A DatetimeIndex column, OR
-    - A time column named 'time' (will be parsed to datetime and set as index).
+    - A DatetimeIndex column OR A time column named 'time' (will be parsed to datetime and set as index).
 
 - In debug, it uses an external dataset located under `test_data/` in `.xls` format.
 

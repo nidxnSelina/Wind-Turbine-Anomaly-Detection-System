@@ -42,26 +42,11 @@ A **supervised Random Forest–based model** that learns from historical data to
 - Splits training/testing automatically and saves model artifacts
 - Supports both `train` and `predict` modes
 
-**Training Workflow**
-1. Load labeled turbine data and time windows.
-2. Balance and scale data.
-3. Train Random Forest model.
-4. Save scaler and classifier to `checkpoints/`.
-
-**Prediction Workflow**
-1. Load external data or in debug, load unseen `.xls` data from `test_data/`
-2. Apply the trained model.
-3. Output a time-indexed DataFrame with anomaly predictions.
-
 **Usage Example**
 ```bash
 python3 run.py --model AnomalyForecastModel --mode train --debug
 python3 run.py --model AnomalyForecastModel --mode predict --debug
 ```
-
-**Artifacts**
-- `checkpoints/scaler.pkl` — Fitted StandardScaler  
-- `checkpoints/classifier.pkl` — Trained RandomForest model  
 
 ---
 
@@ -103,5 +88,5 @@ Outputs are saved in `checkpoints/` folder.
 
 ---
 
-## 🧑Author
+## Author
 Developed by **Selina Wang**  
