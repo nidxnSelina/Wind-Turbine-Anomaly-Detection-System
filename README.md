@@ -23,13 +23,6 @@ A **rule-based model** for fast, interpretable anomaly detection using user-defi
 python3 run.py --model ThresholdDetectionModel --mode predict   --target power --left_threshold 300.0 --right_threshold 500.0 --debug
 ```
 
-**Output Note**
-| Label | Meaning | Condition |
-|--------|----------|-----------|
-| `0` | Normal | within `[left, right]` |
-| `1` | Below Threshold | < `left` |
-| `2` | Above Threshold | > `right` |
-
 ---
 
 ### 2. `AnomalyForecastModel`

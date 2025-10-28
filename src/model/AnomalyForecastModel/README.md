@@ -79,13 +79,6 @@ python3 run.py --model AnomalyForecastModel --mode predict --debug
 | `--mode` | `predict` or `train` |
 | `--debug` | Debug |
 
-## Model Details
-- **Split ratio:** 80% training / 20% testing
-- **Sampler:** `RandomUnderSampler(random_state=42)`
-- **Scaler:** `StandardScaler()`
-- **Estimator:** `RandomForestClassifier(random_state=42)`
-- **Metrics:** Confusion matrix and accuracy printed during debug mode
-
 ## Output
 All outputs are stored under `checkpoints\`.
 - **Training:** 
